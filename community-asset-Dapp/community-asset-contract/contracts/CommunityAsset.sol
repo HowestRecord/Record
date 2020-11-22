@@ -2,7 +2,7 @@ pragma solidity >=0.4.22 <0.7.0;
 
 import  '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
 
-contract CommunityAssetContract is ERC1155  {
+contract CommunityAsset is ERC1155  {
 
   address private _administrator;
 
