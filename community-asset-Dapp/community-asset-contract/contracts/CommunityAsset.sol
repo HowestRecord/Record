@@ -24,7 +24,7 @@ contract CommunityAsset is ERC1155  {
   }
 
   modifier isAdministrator() {
-    require(msg.sender == _administrator, "Only administrator role can change administrator!");
+    require(msg.sender == _administrator, "Only administrator role can perform this action!");
     _;
   }
 
@@ -35,9 +35,8 @@ contract CommunityAsset is ERC1155  {
       _communityDID = communityDID;
   }
 
-
   function createAsset(string memory assetDID, uint256 nbrOfAssetTokens) public isAdministrator {
-    require(!existsAsset(assetDID), "Asset with with DID allready exists in this communitie");
+    require(!existsAsset(assetDID), "Asset with with DID allready exists in this community");
 
     address administrator = msg.sender;
 
@@ -47,11 +46,10 @@ contract CommunityAsset is ERC1155  {
     _communityAssets[assetDID] = Asset(_assetIdCount, assetDID, nbrOfAssetTokens, _assetTokenIdCount);
     _communityAssetsDID[_assetIdCount] = assetDID;
 
-    _mint(administrator, _assetIdCount, 1, ""); // mint asset unique
-    _mint(administrator, _assetIdCount, nbrOfAssetTokens, ""); //mint nbrOfAssetTokens for the asset x
+    _mint(administrator, _assetIdCount, 1, ""); // mint asset
+    _mint(administrator, _assetTokenIdCount, nbrOfAssetTokens, ""); //mint nbrOfAssetTokens for the asset x
 
   }
-
 
   function getNbrOfAssets() public view returns (uint256) {
     return _assetIdCount;
