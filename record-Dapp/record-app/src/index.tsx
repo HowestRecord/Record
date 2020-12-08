@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import * as Sentry from '@sentry/browser';
 
 import 'assets/styles/main.css';
-//import { AppProviders } from 'providers/AppProviders';
 
+import { AppProviders } from './providers/AppProviders';
 import { App } from './app/App';
 
 if (process.env.NODE_ENV === 'development') {
@@ -17,4 +17,9 @@ if (process.env.REACT_APP_SENTRY_DSN) {
   Sentry.init({ dsn: process.env.REACT_APP_SENTRY_DSN });
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+  <AppProviders>
+    <App />
+  </AppProviders>,
+  document.getElementById('root'),
+);

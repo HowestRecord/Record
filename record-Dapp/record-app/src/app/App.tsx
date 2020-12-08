@@ -1,9 +1,7 @@
 import React from 'react';
 
+import { AppRoutes } from '../routing/AppRoutes';
+
 export const App = () => {
-  return (
-    <div>
-      <header>Record Dapp</header>
-    </div>
-  );
+  return <AppRoutes />;
 };
