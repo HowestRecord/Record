@@ -1,0 +1,20 @@
+1. View Assets ?
+
+2. Mint asset 
+    --> mintAsset(string assetDID)
+
+3. Deactivate asset ?
+
+4. View Communities ?
+
+5. Transfer asset shares
+   --> safeTransferFrom(address sender, address receiver, id, amount)
+
+6. Gebruikers gekoppeld aan asset?
+
+7. Aantal tokens per gebruiker voor een assettoken ?
+
+8. 
+
+
+    
