@@ -3,7 +3,6 @@ const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { accounts } = require('@openzeppelin/test-environment');
 const { expect } = require('chai');
 
-
 before(async () => {
   const [signer] = await ethers.getSigners();
   console.log('signer:', signer.address);
@@ -24,12 +23,12 @@ beforeEach(async () => {
 
 describe('Record', () => {
   it('Should return the Uri', async () => {
-    expect(await this.record.uri(1)).to.equal('URI{id}');
+    expect(await this.record.uri(0)).to.equal('URI{id}');
   });
 
   it('Should return balance 1000 for new minted asset token', async () => {
     expect(
-      await this.record.balanceOf(this.accounts.administrator, 1)
+      await this.record.balanceOf(this.accounts.administrator, 0)
     ).to.equal(1000);
   });
 
@@ -37,7 +36,7 @@ describe('Record', () => {
     await this.record.mintAsset('Asset2');
 
     expect(
-      await this.record.balanceOf(this.accounts.administrator, 2)
+      await this.record.balanceOf(this.accounts.administrator, 1)
     ).to.equal(1000);
   });
 
@@ -52,15 +51,15 @@ describe('Record', () => {
     await this.record.safeTransferFrom(
       this.accounts.administrator,
       this.accounts.owner1,
-      1,
+      0,
       100,
       []
     );
 
     expect(
-      await this.record.balanceOf(this.accounts.administrator, 1)
+      await this.record.balanceOf(this.accounts.administrator, 0)
     ).to.equal(900);
-    expect(await this.record.balanceOf(this.accounts.owner1, 1)).to.equal(100);
+    expect(await this.record.balanceOf(this.accounts.owner1, 0)).to.equal(100);
   });
 
   it('Should revert sending 1001 asset shares from administrator to owner1 with balance of 1000!', async () => {
@@ -68,7 +67,7 @@ describe('Record', () => {
       this.record.safeTransferFrom(
         this.accounts.administrator,
         this.accounts.owner1,
-        1,
+        0,
         1001,
         []
       ),
@@ -76,15 +75,15 @@ describe('Record', () => {
     );
   });
 
-  it('Should get tokenId 1 for Asset1 !', async () => {
-    expect(await this.record.getAssetTokenIdForAsset('Asset1')).to.equal(1);
+  it('Should get tokenId for Asset1 !', async () => {
+    expect(await this.record.getAssetTokenIdForAsset('Asset1')).to.equal(0);
   });
 
   it('Should show all asset token holders for Asset1 after transfer from administrator to owner1 and owner2!', async () => {
     await this.record.safeTransferFrom(
       this.accounts.administrator,
       this.accounts.owner1,
-      1,
+      0,
       100,
       []
     );
@@ -92,7 +91,7 @@ describe('Record', () => {
     await this.record.safeTransferFrom(
       this.accounts.administrator,
       this.accounts.owner2,
-      1,
+      0,
       100,
       []
     );
@@ -102,5 +101,13 @@ describe('Record', () => {
     );
 
     expect(holder1).to.equal(this.accounts.administrator);
+  });
+
+  it('Should return Asset1 and Asset2 as minted assets', async () => {
+    await this.record.mintAsset('Asset2');
+
+    const mintedAssets = await this.record.getMintedAssets();
+    expect(mintedAssets[0]).to.equal('Asset1');
+    expect(mintedAssets[1]).to.equal('Asset2');
   });
 });

@@ -1,4 +1,5 @@
 pragma solidity >=0.4.22 <0.8.0;
+pragma experimental ABIEncoderV2;
 
 import  '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
 
@@ -15,7 +16,11 @@ contract Record is ERC1155  {
 
   mapping(uint256 => mapping(address => bool)) private  _isAssetTokenIdHolder;
 
-  mapping(string => uint256)  private _mintedAssetTokens;  //Link assetDID with assetTokenID
+  mapping(string => uint256)  private _mintedAssetTokens;  //Link token ref with assetTokenID
+
+  mapping(string => bool)  private _assetTokenMinted;  
+
+  mapping(uint256 => string)  private _mintedAssetTokensRefs;  //token id ref
 
   event assetMinted(string indexed assetRef, uint256 indexed assetTokenId);
 
@@ -28,13 +33,16 @@ contract Record is ERC1155  {
 
     address assetMinter = msg.sender;
 
+    uint256 assetTokenIdCount = _assetTokenIdCount;
     _assetTokenIdCount = _assetTokenIdCount.add(ASSET_TOKEN_ADD);
 
-    _mintedAssetTokens[assetRef] = _assetTokenIdCount; //Link asset with tokens
+    _mintedAssetTokens[assetRef] = assetTokenIdCount; //Link asset with tokens
+    _mintedAssetTokensRefs[assetTokenIdCount] = assetRef;
+    _assetTokenMinted[assetRef] = true;
 
-    _mint(assetMinter, _assetTokenIdCount, 1000, ""); //mint nbrOfAssetTokens for the asset x
+    _mint(assetMinter, assetTokenIdCount, 1000, ""); //mint nbrOfAssetTokens for the asset x
 
-    emit assetMinted(assetRef, _assetTokenIdCount);
+    emit assetMinted(assetRef, assetTokenIdCount);
 
   }
 
@@ -44,8 +52,7 @@ contract Record is ERC1155  {
   }
 
   function assetAllReadyMinted(string memory assetRef) internal view returns (bool) {
-    uint256 assetTokenId = _mintedAssetTokens[assetRef];
-    return assetTokenId > 0;
+    return _assetTokenMinted[assetRef];
   }
 
   function _beforeTokenTransfer(
@@ -97,6 +104,21 @@ contract Record is ERC1155  {
     {
         uint256 assetTokenId = _mintedAssetTokens[assetRef];
         return _assetTokenIdHolderCount[assetTokenId];
-    }
+  }
+
+  function getMintedAssets ()
+        public
+        view
+        
+        returns (string[] memory)
+    {
+        string[] memory mintedAssets = new string[](_assetTokenIdCount);
+
+        for (uint256 i = 0 ; i < _assetTokenIdCount ; ++i) {
+            mintedAssets[i] = _mintedAssetTokensRefs[i];
+        }
+
+        return mintedAssets;
+  }
 
 }
