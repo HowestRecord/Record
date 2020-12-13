@@ -15,7 +15,7 @@ async function main() {
 
   // We get the contract to deploy
   const Record = await hre.ethers.getContractFactory('Record');
-  const record = await Record.deploy('HRI{id}');
+  const record = await Record.deploy('URI{id}');
 
   await record.deployed();
 

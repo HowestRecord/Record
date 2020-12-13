@@ -9,6 +9,12 @@ contract Record is ERC1155  {
 
   uint256 private _assetTokenIdCount = 0;
 
+  mapping(uint256 => uint256) private _assetTokenIdHolderCount;
+
+  mapping(uint256 => mapping(uint256 => address)) private _assetTokenIdHolder;
+
+  mapping(uint256 => mapping(address => bool)) private  _isAssetTokenIdHolder;
+
   mapping(string => uint256)  private _mintedAssetTokens;  //Link assetDID with assetTokenID
 
   event assetMinted(string indexed assetRef, uint256 indexed assetTokenId);
@@ -23,6 +29,7 @@ contract Record is ERC1155  {
     address assetMinter = msg.sender;
 
     _assetTokenIdCount = _assetTokenIdCount.add(ASSET_TOKEN_ADD);
+
     _mintedAssetTokens[assetRef] = _assetTokenIdCount; //Link asset with tokens
 
     _mint(assetMinter, _assetTokenIdCount, 1000, ""); //mint nbrOfAssetTokens for the asset x
@@ -40,5 +47,56 @@ contract Record is ERC1155  {
     uint256 assetTokenId = _mintedAssetTokens[assetRef];
     return assetTokenId > 0;
   }
+
+  function _beforeTokenTransfer(
+          address operator,
+          address from,
+          address to,
+          uint256[] memory ids,
+          uint256[] memory amounts,
+          bytes memory data
+    )
+          internal virtual override(ERC1155) {
+    super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+    
+    for (uint i = 0; i < ids.length; i++) {
+      if (_isAssetTokenIdHolder[ids[i]][to] != true) {
+         _assetTokenIdHolder[ids[i]][_assetTokenIdHolderCount[ids[i]]] = to;
+        _assetTokenIdHolderCount[ids[i]] = _assetTokenIdHolderCount[ids[i]].add(1);
+      }
+    }
+  }
   
+
+  function getAssetTokenHolders (
+        string memory assetRef
+    )
+        public
+        view
+        
+        returns (address[] memory)
+    {
+        uint256 assetTokenId = _mintedAssetTokens[assetRef];
+        address[] memory assetTokenHolders = new address[](_assetTokenIdHolderCount[assetTokenId]);
+
+        for (uint256 i = 0 ; i < _assetTokenIdHolderCount[assetTokenId] ; ++i) {
+            
+            assetTokenHolders[i] = _assetTokenIdHolder[assetTokenId][i];
+        }
+
+        return assetTokenHolders;
+    }
+
+  function getAssetTokenHolderCount (
+        string memory assetRef
+    )
+        public
+        view
+        
+        returns (uint256)
+    {
+        uint256 assetTokenId = _mintedAssetTokens[assetRef];
+        return _assetTokenIdHolderCount[assetTokenId];
+    }
+
 }

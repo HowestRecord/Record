@@ -3,13 +3,17 @@ const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { accounts } = require('@openzeppelin/test-environment');
 const { expect } = require('chai');
 
+
 before(async () => {
   const [signer] = await ethers.getSigners();
+  console.log('signer:', signer.address);
   this.Record = await ethers.getContractFactory('Record');
   this.accounts = {
     administrator: signer.address,
     owner1: accounts[0],
+    owner2: accounts[1],
   };
+  console.log('accounts:', this.accounts);
 });
 
 beforeEach(async () => {
@@ -74,5 +78,29 @@ describe('Record', () => {
 
   it('Should get tokenId 1 for Asset1 !', async () => {
     expect(await this.record.getAssetTokenIdForAsset('Asset1')).to.equal(1);
+  });
+
+  it('Should show all asset token holders for Asset1 after transfer from administrator to owner1 and owner2!', async () => {
+    await this.record.safeTransferFrom(
+      this.accounts.administrator,
+      this.accounts.owner1,
+      1,
+      100,
+      []
+    );
+
+    await this.record.safeTransferFrom(
+      this.accounts.administrator,
+      this.accounts.owner2,
+      1,
+      100,
+      []
+    );
+
+    const [holder1, holder2, holder3] = await this.record.getAssetTokenHolders(
+      'Asset1'
+    );
+
+    expect(holder1).to.equal(this.accounts.administrator);
   });
 });

@@ -1,17 +1,28 @@
 require('@nomiclabs/hardhat-waffle');
+const dotenv = require('dotenv');
+dotenv.config();
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task('accounts', 'Prints the list of accounts', async () => {
-  const accounts = await ethers.getSigners();
-
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+const PRIVATE_KEY = `0x${process.env.DEPLOY_PRIVATE_KEY}`;
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+  defaultNetwork: 'hardhat',
+  networks: {
+    hardhat: {},
+    ganache: {
+      url: 'HTTP://127.0.0.1:7545',
+    },
+    volta: {
+      url: 'https://volta-rpc.energyweb.org/',
+      chainId: 73799,
+      accounts: [PRIVATE_KEY],
+    },
+  },
   solidity: '0.7.0',
 };
+
+/***
+ * Deploy command
+ * npx hardhat run --network <your-network> scripts/deploy_record.js
+ */
