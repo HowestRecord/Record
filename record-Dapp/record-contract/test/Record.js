@@ -285,15 +285,6 @@ describe('Record', () => {
 
   });
 
-  it('Should revert when mintedAssetSharesBy not called by creator', async () => {
-
-    await this.expectRevert(
-        this.record.connect(this.accounts.owner1).mintedAssetSharesBy(this.accounts.administrator.address),
-        'ERC1155: caller is not creator nor approved'
-    );
-
-  });
-
   this.expectRevert = async (promise, expectedError) => {
     try {
       await promise;
