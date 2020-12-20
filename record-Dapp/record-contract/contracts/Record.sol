@@ -145,6 +145,33 @@ contract Record is ERC1155  {
      
   }
 
+   function ownedAssetSharesWithBalances(
+    address owner)
+    public
+    view
+    returns (string[] memory ownedAssets,  uint256[] memory ownedBalances)
+  {
+    require(owner == msg.sender, "RECORD: Only allowed by owner of asset shares");
+    string[] memory owned = new string[](assetRefs.length);
+
+    uint256 ownedCount = 0;
+
+    for (uint256 i = 0; i < assetRefs.length; i++) {
+      if(_ownedAssetShares[owner][assetShareTokens[assetRefs[i]].id] && balanceOf(owner, assetShareTokens[assetRefs[i]].id) > 0){
+        owned[ownedCount++] = assetRefs[i];
+      }
+    }
+
+    ownedAssets = new string[](ownedCount);
+    ownedBalances= new uint256[](ownedCount);
+
+    for (uint256 i = 0; i < ownedCount; i++) {
+      ownedAssets[i] = owned[i];
+      ownedBalances[i] = balance(owner, owned[i]);
+    }
+     
+  }
+
   function allDevidedAssets()
     public 
     view 
