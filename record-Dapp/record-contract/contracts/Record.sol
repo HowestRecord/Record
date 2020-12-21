@@ -132,7 +132,8 @@ contract Record is ERC1155  {
     uint256 mintedCount = 0;
 
     for (uint256 i = 0; i < assetRefs.length; i++) {
-      if (assetShareTokens[assetRefs[i]].status == AssetShareTokenStatus.MINTED && assetShareTokens[assetRefs[i]].creator == creator) {
+      if (assetShareTokens[assetRefs[i]].status == AssetShareTokenStatus.MINTED 
+          && assetShareTokens[assetRefs[i]].creator == creator) {
         created[mintedCount++] = assetRefs[i];
       }
     }
@@ -157,7 +158,10 @@ contract Record is ERC1155  {
     uint256 ownedCount = 0;
 
     for (uint256 i = 0; i < assetRefs.length; i++) {
-      if(_ownedAssetShares[owner][assetShareTokens[assetRefs[i]].id] && balanceOf(owner, assetShareTokens[assetRefs[i]].id) > 0){
+      if(assetShareTokens[assetRefs[i]].status == AssetShareTokenStatus.DEVIDED
+         && _ownedAssetShares[owner][assetShareTokens[assetRefs[i]].id] 
+         && balanceOf(owner, assetShareTokens[assetRefs[i]].id) > 0
+         ){
         owned[ownedCount++] = assetRefs[i];
       }
     }
