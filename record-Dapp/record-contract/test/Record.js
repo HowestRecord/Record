@@ -152,7 +152,7 @@ describe('Record', () => {
     expect(assets[1]).to.equal('Asset2');
   });
 
-  it('Should devide shares for asset to share holders', async () => {
+  it('Should divide shares for asset to share holders', async () => {
     const shareHolders = [
       this.accounts.owner1.address,
       this.accounts.owner2.address,
@@ -161,7 +161,7 @@ describe('Record', () => {
 
     await this.record
       .connect(this.accounts.administrator)
-      .devideAssetShares(
+      .divideAssetShares(
         this.accounts.administrator.address,
         shareHolders,
         'Asset1',
@@ -182,14 +182,14 @@ describe('Record', () => {
     ).to.equal(400);
   });
 
-  it('Should get asset holders after devide shares for asset ', async () => {
+  it('Should get asset holders after divide shares for asset ', async () => {
     const shareHolders = [
       this.accounts.owner1.address,
       this.accounts.owner2.address,
     ];
     const amounts = [600, 400];
 
-    await this.record.devideAssetShares(
+    await this.record.divideAssetShares(
       this.accounts.administrator.address,
       shareHolders,
       'Asset1',
@@ -210,7 +210,7 @@ describe('Record', () => {
 
     await this.record
       .connect(this.accounts.administrator)
-      .devideAssetShares(
+      .divideAssetShares(
         this.accounts.administrator.address,
         shareHoldersAsset1,
         'Asset1',
@@ -226,7 +226,7 @@ describe('Record', () => {
 
     await this.record
       .connect(this.accounts.administrator)
-      .devideAssetShares(
+      .divideAssetShares(
         this.accounts.administrator.address,
         shareHoldersAsset2,
         'Asset2',
@@ -234,14 +234,14 @@ describe('Record', () => {
         []
       );
 
-    const allDevidedAssets = await this.record.allDevidedAssets();
+    const allDividedAssets = await this.record.allDividedAssets();
 
-    expect(allDevidedAssets[0]).to.equal('Asset1');
+    expect(allDividedAssets[0]).to.equal('Asset1');
 
-    expect(allDevidedAssets[1]).to.equal('Asset2');
+    expect(allDividedAssets[1]).to.equal('Asset2');
   });
 
-  it('Should return all holders for devided asset shares', async () => {
+  it('Should return all holders for divided asset shares', async () => {
     const shareHoldersAsset1 = [
       this.accounts.administrator.address,
       this.accounts.owner1.address,
@@ -251,7 +251,7 @@ describe('Record', () => {
 
     await this.record
       .connect(this.accounts.administrator)
-      .devideAssetShares(
+      .divideAssetShares(
         this.accounts.administrator.address,
         shareHoldersAsset1,
         'Asset1',
@@ -284,7 +284,7 @@ describe('Record', () => {
 
     await this.record
       .connect(this.accounts.administrator)
-      .devideAssetShares(
+      .divideAssetShares(
         this.accounts.administrator.address,
         shareHoldersAsset1,
         'Asset1',
@@ -336,7 +336,7 @@ describe('Record', () => {
 
     await this.record
       .connect(this.accounts.administrator)
-      .devideAssetShares(
+      .divideAssetShares(
         this.accounts.administrator.address,
         shareHoldersAsset1,
         'Asset1',
@@ -346,7 +346,7 @@ describe('Record', () => {
 
     await this.record
       .connect(this.accounts.administrator)
-      .devideAssetShares(
+      .divideAssetShares(
         this.accounts.administrator.address,
         shareHoldersAsset2,
         'Asset2',
@@ -389,12 +389,12 @@ describe('Record', () => {
     );
   });
 
-  it('Should revert devide shares for asset to share holders when shareholders and amounts lenght mismatch', async () => {
+  it('Should revert divide shares for asset to share holders when shareholders and amounts lenght mismatch', async () => {
     const shareHolders = [this.accounts.administrator.address];
     const amounts = [500, 500];
 
     await this.expectRevert(
-      this.record.devideAssetShares(
+      this.record.divideAssetShares(
         this.accounts.administrator.address,
         shareHolders,
         'Asset1',
@@ -405,7 +405,7 @@ describe('Record', () => {
     );
   });
 
-  it('Should revert devide shares for asset to share holders when asset is not minted yet', async () => {
+  it('Should revert divide shares for asset to share holders when asset is not minted yet', async () => {
     const shareHolders = [
       this.accounts.administrator.address,
       this.accounts.administrator.address,
@@ -413,7 +413,7 @@ describe('Record', () => {
     const amounts = [500, 500];
 
     await this.expectRevert(
-      this.record.devideAssetShares(
+      this.record.divideAssetShares(
         this.accounts.administrator.address,
         shareHolders,
         'Asset2',
@@ -424,7 +424,7 @@ describe('Record', () => {
     );
   });
 
-  it('Should revert devide shares for asset to share holders when not correctly devided: > 1000', async () => {
+  it('Should revert divide shares for asset to share holders when not correctly divided: > 1000', async () => {
     const shareHoldersAsset1 = [
       this.accounts.administrator.address,
       this.accounts.owner1.address,
@@ -435,18 +435,18 @@ describe('Record', () => {
     await this.expectRevert(
       this.record
         .connect(this.accounts.administrator)
-        .devideAssetShares(
+        .divideAssetShares(
           this.accounts.administrator.address,
           shareHoldersAsset1,
           'Asset1',
           amountsAsset1,
           []
         ),
-      'RECORD: All shares should be devided correctly'
+      'RECORD: All shares should be divided correctly'
     );
   });
 
-  it('Should revert devide shares for asset to share holders when not correctly devided: < 1000', async () => {
+  it('Should revert divide shares for asset to share holders when not correctly divided: < 1000', async () => {
     const shareHoldersAsset1 = [
       this.accounts.administrator.address,
       this.accounts.owner1.address,
@@ -457,14 +457,14 @@ describe('Record', () => {
     await this.expectRevert(
       this.record
         .connect(this.accounts.administrator)
-        .devideAssetShares(
+        .divideAssetShares(
           this.accounts.administrator.address,
           shareHoldersAsset1,
           'Asset1',
           amountsAsset1,
           []
         ),
-      'RECORD: All shares should be devided correctly'
+      'RECORD: All shares should be divided correctly'
     );
   });
 

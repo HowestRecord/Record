@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
 
 contract Record is ERC1155  {
-  enum AssetShareTokenStatus {MINTED, DEVIDED}
+  enum AssetShareTokenStatus {MINTED, DIVIDED}
 
   struct AssetShareToken {
     uint256 id;
@@ -53,7 +53,7 @@ contract Record is ERC1155  {
 
   }
 
-  function devideAssetShares(
+  function divideAssetShares(
       address creator,
       address[] memory _shareHolders,
       string memory _assetRef,
@@ -64,10 +64,10 @@ contract Record is ERC1155  {
   {
     require(_shareHolders.length == _amounts.length, "RECORD: ShareHolders and amounts length mismatch");
     require(_isAssetSharesExists(_assetRef), "RECORD: Asset not minted yet");
-    require(!_isAssetSharesDevided(_assetRef), "RECORD: Shares for Asset allready devided");
-    require(_isAllSharesDevided(_amounts), "RECORD: All shares should be devided correctly");
+    require(!_isAssetSharesDivided(_assetRef), "RECORD: Shares for Asset allready divided");
+    require(_isAllSharesDivided(_amounts), "RECORD: All shares should be divided correctly");
 
-    assetShareTokens[_assetRef].status = AssetShareTokenStatus.DEVIDED;
+    assetShareTokens[_assetRef].status = AssetShareTokenStatus.DIVIDED;
 
     for (uint256 i = 0; i < _shareHolders.length; i++) {
       transfer(creator, _shareHolders[i], _assetRef, _amounts[i], _data);
@@ -158,7 +158,7 @@ contract Record is ERC1155  {
     uint256 ownedCount = 0;
 
     for (uint256 i = 0; i < assetRefs.length; i++) {
-      if(assetShareTokens[assetRefs[i]].status == AssetShareTokenStatus.DEVIDED
+      if(assetShareTokens[assetRefs[i]].status == AssetShareTokenStatus.DIVIDED
          && _ownedAssetShares[owner][assetShareTokens[assetRefs[i]].id] 
          && balanceOf(owner, assetShareTokens[assetRefs[i]].id) > 0
          ){
@@ -176,26 +176,26 @@ contract Record is ERC1155  {
      
   }
 
-  function allDevidedAssets()
+  function allDividedAssets()
     public 
     view 
     returns (string[] 
-    memory devidedAssets) 
+    memory dividedAssets) 
   {
     string[] memory created = new string[](assetRefs.length);
 
     uint256 mintedCount = 0;
 
     for (uint256 i = 0; i < assetRefs.length; i++) {
-      if (assetShareTokens[assetRefs[i]].status == AssetShareTokenStatus.DEVIDED) {
+      if (assetShareTokens[assetRefs[i]].status == AssetShareTokenStatus.DIVIDED) {
         created[mintedCount++] = assetRefs[i];
       }
     }
 
-    devidedAssets = new string[](mintedCount);
+    dividedAssets = new string[](mintedCount);
 
     for (uint256 i = 0; i < mintedCount; i++) {
-      devidedAssets[i] = created[i];
+      dividedAssets[i] = created[i];
     }
   }
 
@@ -294,16 +294,16 @@ contract Record is ERC1155  {
     return assetShareTokens[_assetRef].id > 0;
   }
 
-  function _isAssetSharesDevided(
+  function _isAssetSharesDivided(
     string memory _assetRef) 
     internal 
     view 
     returns (bool) 
   {
-    return assetShareTokens[_assetRef].status == AssetShareTokenStatus.DEVIDED;
+    return assetShareTokens[_assetRef].status == AssetShareTokenStatus.DIVIDED;
   }
 
-  function _isAllSharesDevided(
+  function _isAllSharesDivided(
     uint256[] memory _amounts) 
     internal 
     pure 
