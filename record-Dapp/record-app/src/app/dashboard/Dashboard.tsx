@@ -11,6 +11,7 @@ import { AppRoute } from 'routing/AppRoute.enum';
 import { useIam } from '../../api/hooks/useIam/useIam';
 import { AssetShare } from '../../hooks/useAssetShares/useAssetShares.types';
 import { useAssetShares } from 'hooks/useAssetShares/useAssetShares';
+import { fileToUint8String } from 'form/fields/uploadField/UploadField.utils';
 
 import { OwnerDashboard } from './dashboards/OwnerDashboard';
 import { useStyles } from './Dashboard.styles';
@@ -45,12 +46,13 @@ export const Dashboard = () => {
     fetchData();
   }, []);
 
-  const handleMintAssetTokens = async ({ ...values }: MintAssetTokenForm) => {
+  const handleMintAssetTokens = async ({ mintingDocument, ...values }: MintAssetTokenForm) => {
     if (user) {
       setIsLoading(true);
       setError(false);
       try {
-        await mintAssetShares(values.assetUuid, '');
+        const mintingDocumentString = mintingDocument && (await fileToUint8String(mintingDocument));
+        await mintAssetShares(values.assetUuid, mintingDocumentString);
         setIsLoading(false);
         setMessage(formatMessage({ id: 'dashboard.minted.successfully' }));
         setOpen(true);
@@ -89,6 +91,7 @@ export const Dashboard = () => {
     }
 
     setOpen(false);
+    fetchData();
   };
 
   const getName = () => {

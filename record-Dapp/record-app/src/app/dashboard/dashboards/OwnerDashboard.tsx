@@ -13,6 +13,7 @@ import { DashboardProps } from '../Dashboard.types';
 import { AssetShare } from '../../../ui/assetShare/AssetShare';
 import { uuid } from '../../../form/validators/uuid/uuid';
 import { TerminateIcon } from '../../../ui/icons';
+import { UploadField } from '../../../form/fields/uploadField/UploadField';
 
 import { MintAssetTokenForm } from './MintAssetToken.types';
 export const OwnerDashboard = ({
@@ -79,13 +80,17 @@ export const OwnerDashboard = ({
                     validate: uuid,
                   }}
                 />
-                <GenericField
-                  name={'document'}
-                  label={formatMessage({ id: 'ownerdashboard.uri' })}
-                  className={classes.input}
-                />
+                <UploadField label={formatMessage({ id: 'ownerdashboard.uri' })} name="mintingDocument" compressImage />
               </Grid>
-              <Grid item xs={12} lg={3} justify="center" alignContent="center" container>
+              <Grid
+                item
+                xs={12}
+                lg={3}
+                justify="center"
+                alignContent="center"
+                container
+                className={classes.buttonContainer}
+              >
                 <Button
                   variant="contained"
                   color="primary"

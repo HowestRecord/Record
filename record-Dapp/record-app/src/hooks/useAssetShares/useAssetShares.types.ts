@@ -10,6 +10,7 @@ export type AssetShare = {
   asset: Asset;
   holders: Holder[];
   currentHolder: Holder;
+  mintingDocument?: string;
   status: AssetShareStatuses;
 };
 

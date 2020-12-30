@@ -4,7 +4,7 @@ import { AssetShare } from '../../../hooks/useAssetShares/useAssetShares.types';
 export type useIamReturnType = {
   login: (privateKey?: string) => Promise<InitializeData>;
   logout: VoidFunction;
-  mintAssetShares: (tokenref: string, metadataUri: string) => Promise<boolean>;
+  mintAssetShares: (tokenref: string, mintingDocument?: string) => Promise<boolean>;
   divideAssetShares: (shareHolders: string[], assetRef: string, shares: number[]) => Promise<boolean>;
   transferAssetShares: (assetRef: string, holderTo: string, shares: number) => Promise<boolean>;
   getAddress: () => Promise<string>;

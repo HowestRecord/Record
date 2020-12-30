@@ -21,4 +21,7 @@ export const useStyles = makeStyles(theme => ({
   button: {
     width: theme.spacing(37.5),
   },
+  buttonContainer: {
+    margin: theme.spacing(2),
+  },
 }));

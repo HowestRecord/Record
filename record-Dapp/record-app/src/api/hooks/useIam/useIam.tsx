@@ -1,5 +1,6 @@
 import { useCallback, useContext } from 'react';
 import { CacheServerClient, ENSNamespaceTypes, IAM, IRoleDefinition } from 'iam-client-lib';
+import ipfsClient from 'ipfs-http-client';
 
 import { IamContext } from 'api/context/iam/iamContext/IamContext';
 import { UserRole } from 'context/user/userContext/UserContext.types';
@@ -14,6 +15,27 @@ export const useIam: () => useIamReturnType = () => {
   if (iamContext === undefined) {
     throw new Error('IamContext is unavailable, make sure you are using IamContextController');
   }
+
+  const saveToIpfs = async (token: Partial<AssetShare>) => {
+    const host = process.env.REACT_APP_IPFS_API_HOST;
+    const port = parseInt('' + process.env.REACT_APP_IPFS_API_PORT, 10);
+    const protocol = process.env.REACT_APP_IPFS_API_PROTOCOL;
+    const apipath = process.env.REACT_APP_IPFS_API_PATH;
+
+    const ipfs = ipfsClient({
+      host: host,
+      port: port,
+      protocol: protocol,
+      apiPath: apipath,
+    });
+    const file = await ipfs.add(JSON.stringify(token));
+    const cid = file.cid;
+
+    if (!cid) {
+      throw new Error('IPFS error');
+    }
+    return `${process.env.REACT_APP_IPFS_URL}${cid.toString()}`;
+  };
 
   const login = async (privateKey?: string) => {
     const cacheClient = new CacheServerClient({
@@ -56,13 +78,27 @@ export const useIam: () => useIamReturnType = () => {
     localStorage.removeItem('walletconnect');
   };
 
-  const mintAssetShares = async (assetRef: string, metadataUri: string) => {
+  const mintAssetShares = async (assetRef: string, mintingDocument?: string) => {
     const { contract, iam } = iamContext;
     const user = iam.current?.getSigner();
     if (contract && user) {
-      const transaction = await contract.connect(user).mintAssetShares(assetRef, metadataUri);
-      await transaction.wait();
-      return true;
+      const asset = assets.find(({ id }) => id === assetRef);
+      if (asset) {
+        const id = await user.getAddress();
+        const currentHolder: Holder = { id: id, name: '', shares: 1000 };
+        const assetShare: AssetShare = {
+          id: assetRef,
+          asset: asset,
+          currentHolder: currentHolder,
+          status: AssetShareStatuses.MINTED,
+          mintingDocument: mintingDocument,
+          holders: [],
+        };
+        const url = await saveToIpfs(assetShare);
+        const transaction = await contract.connect(user).mintAssetShares(assetRef, url);
+        await transaction.wait();
+        return true;
+      }
     }
     return false;
   };
@@ -141,6 +177,23 @@ export const useIam: () => useIamReturnType = () => {
     return assetShares;
   };
 
+  const getDocument = async (assetRef: string) => {
+    const { contract, iam } = iamContext;
+
+    const user = iam.current?.getSigner();
+
+    if (user) {
+      const uri = await contract.metadataUri(assetRef);
+      if (uri) {
+        const response = await fetch(uri, { cache: 'no-store' });
+        const json = await response.json();
+        return json.mintingDocument;
+      } else {
+        return '';
+      }
+    }
+  };
+
   const getOwnedAssetShares = async () => {
     const assetShares: AssetShare[] = [];
     const address = await getAddress();
@@ -153,6 +206,7 @@ export const useIam: () => useIamReturnType = () => {
       if (asset) {
         const shares = parseFloat(ownedAssetSharesBalances[i]);
         const currentHolder: Holder = { id: address, name: '', shares: shares };
+        const document = await getDocument(ownedAssetShares[i]);
         assetShares.push({
           id: id,
           asset: asset,
@@ -160,6 +214,7 @@ export const useIam: () => useIamReturnType = () => {
             return { id: holder.id, name: holder.name, shares: parseFloat(holder.shares.toString()) };
           }),
           currentHolder: currentHolder,
+          mintingDocument: document,
           status: AssetShareStatuses.DIVIDED,
         });
       }

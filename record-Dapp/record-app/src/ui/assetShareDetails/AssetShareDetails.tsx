@@ -4,13 +4,24 @@ import { Grid, Typography } from '@material-ui/core';
 import { truncateString } from 'helpers';
 import { InfoBlock } from '../infoBlock/InfoBlock';
 import { AssetShare } from '../../hooks/useAssetShares/useAssetShares.types';
-import { GlobeIcon, SuccessIcon } from 'ui/icons';
+import { CameraIcon, GlobeIcon, SuccessIcon } from 'ui/icons';
 import { useLocale } from 'hooks';
+import { ZoomableImage } from '../zoomableImage/ZoomableImage';
 
 import { useStyles } from './AssetShareDetails.styles';
-export const AssetShareDetails = ({ asset, holders }: AssetShare) => {
+export const AssetShareDetails = ({ asset, holders, mintingDocument }: AssetShare) => {
   const { formatMessage } = useLocale();
   const { container, mainContainer, assetId, assetName } = useStyles();
+
+  const documentURL = (document: any | undefined): string => {
+    if (document) {
+      const array: number[] = document.split(',').map(Number);
+      const data = new Uint8Array(array);
+      const blob = new Blob([data as BlobPart], { type: 'image/png' });
+      return URL.createObjectURL(blob);
+    }
+    return '';
+  };
 
   return (
     <Grid container>
@@ -20,6 +31,21 @@ export const AssetShareDetails = ({ asset, holders }: AssetShare) => {
           <Typography className={assetName}>{asset.name}</Typography>
         </Grid>
       </Grid>
+      {mintingDocument && (
+        <Grid item xs={12} className={container}>
+          <InfoBlock
+            items={[
+              {
+                text: formatMessage({ id: 'assetshare_detail.clickToZoom' }),
+                label: formatMessage({ id: 'assetshare_detail.document' }),
+                textIcon: CameraIcon,
+                labelIcon: SuccessIcon,
+                content: mintingDocument && <ZoomableImage src={documentURL(mintingDocument)} />,
+              },
+            ]}
+          />
+        </Grid>
+      )}
       {holders.length > 0 &&
         holders.map(({ id, shares }) => (
           <Grid key={id} container direction="column" justify="space-between">
