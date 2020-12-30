@@ -1,32 +1,12 @@
 import { useCallback, useContext } from 'react';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { Contract } from 'ethers';
 import { CacheServerClient, ENSNamespaceTypes, IAM, IRoleDefinition } from 'iam-client-lib';
 
 import { IamContext } from 'api/context/iam/iamContext/IamContext';
-import { ProxyMetadata } from 'hooks/useAssets/useAssets.types';
 import { UserRole } from 'context/user/userContext/UserContext.types';
+import { assets } from '../../../mocks/assets';
+import { AssetShare, AssetShareStatuses, Holder } from '../../../hooks/useAssetShares/useAssetShares.types';
 
 import { TokenData, useIamReturnType } from './useIam.types';
-
-const getDataFromTokens = async (tokensUid: string[], contract: Contract) => {
-  return (
-    await Promise.all<ProxyMetadata>(
-      tokensUid.map(async (tokenUid: string) => {
-        const uri = await contract.uri(tokenUid);
-        if (uri) {
-          const response = await fetch(uri, { cache: 'no-store' });
-          return response.json();
-        } else {
-          return {
-            id: tokenUid,
-          };
-        }
-      }),
-    )
-  ).filter(Boolean);
-};
 
 export const useIam: () => useIamReturnType = () => {
   const iamContext = useContext(IamContext);
@@ -76,21 +56,131 @@ export const useIam: () => useIamReturnType = () => {
     localStorage.removeItem('walletconnect');
   };
 
-  const createClaim = async (data: Record<string, unknown>) => {
-    const { iam } = iamContext;
-
-    if (iam.current && iam.current.isConnected()) {
-      await iam.current.createSelfSignedClaim({ data });
+  const mintAssetShares = async (assetRef: string, metadataUri: string) => {
+    const { contract, iam } = iamContext;
+    const user = iam.current?.getSigner();
+    if (contract && user) {
+      const transaction = await contract.connect(user).mintAssetShares(assetRef, metadataUri);
+      await transaction.wait();
+      return true;
     }
+    return false;
   };
 
-  const getAllTokens = async () => {
-    const { contract } = iamContext;
-    if (contract) {
-      const tokensUid = await contract.allTokens();
-      return getDataFromTokens(tokensUid, contract);
+  const divideAssetShares = async (shareHolders: string[], assetRef: string, shares: number[]) => {
+    const { contract, iam } = iamContext;
+    const user = iam.current?.getSigner();
+    if (contract && user) {
+      const transaction = await contract
+        .connect(user)
+        .divideAssetShares(user.getAddress(), shareHolders, assetRef, shares, []);
+      await transaction.wait();
+      return true;
+    }
+    return false;
+  };
+
+  const transferAssetShares = async (assetRef: string, holderTo: string, shares: number) => {
+    const { contract, iam } = iamContext;
+    const user = iam.current?.getSigner();
+    if (contract && user) {
+      const transaction = await contract.connect(user).transfer(user.getAddress(), holderTo, assetRef, shares, []);
+      await transaction.wait();
+      return true;
+    }
+    return false;
+  };
+
+  const mintedAssetSharesBy = async () => {
+    const { contract, iam } = iamContext;
+
+    const user = iam.current?.getSigner();
+
+    if (user && contract) {
+      const userAddress = await user.getAddress();
+      return await contract.connect(user).mintedAssetSharesBy(userAddress);
     }
     return [];
+  };
+
+  const ownedAssetSharesWithBalances = async () => {
+    const { contract, iam } = iamContext;
+
+    const user = iam.current?.getSigner();
+
+    if (user && contract) {
+      const userAddress = await user.getAddress();
+      const ownedAssetSharesWithBalances = await contract.connect(user).ownedAssetSharesWithBalances(userAddress);
+      return ownedAssetSharesWithBalances;
+    }
+    return [];
+  };
+
+  const getMintedAssetShares = async () => {
+    const mintedAssetUids = await mintedAssetSharesBy();
+    const address = await getAddress();
+
+    const assetShares: AssetShare[] = [];
+    assets
+      .filter(asset => {
+        return mintedAssetUids.indexOf(asset.id) !== -1;
+      })
+      .forEach(asset => {
+        const id = asset.id;
+        const currentHolder: Holder = { id: address, name: '', shares: 1000 };
+        const holders: Holder[] = [];
+        holders.push(currentHolder);
+        assetShares.push({
+          id: id,
+          asset: asset,
+          holders: holders,
+          currentHolder: currentHolder,
+          status: AssetShareStatuses.MINTED,
+        });
+      });
+    return assetShares;
+  };
+
+  const getOwnedAssetShares = async () => {
+    const assetShares: AssetShare[] = [];
+    const address = await getAddress();
+    const [ownedAssetShares, ownedAssetSharesBalances] = await ownedAssetSharesWithBalances();
+
+    for (let i = 0; i < ownedAssetShares.length; i++) {
+      const id = ownedAssetShares[i];
+      const holders = await getHolders(ownedAssetShares[i]);
+      const asset = assets.find(({ id }) => id === ownedAssetShares[i]);
+      if (asset) {
+        const shares = parseFloat(ownedAssetSharesBalances[i]);
+        const currentHolder: Holder = { id: address, name: '', shares: shares };
+        assetShares.push({
+          id: id,
+          asset: asset,
+          holders: holders.map(holder => {
+            return { id: holder.id, name: holder.name, shares: parseFloat(holder.shares.toString()) };
+          }),
+          currentHolder: currentHolder,
+          status: AssetShareStatuses.DIVIDED,
+        });
+      }
+    }
+
+    return assetShares;
+  };
+
+  const getHolders = async (assetRef: string) => {
+    const { contract, iam } = iamContext;
+
+    const user = iam.current?.getSigner();
+    const assetShareHolders: Holder[] = [];
+    if (user) {
+      const [holders, balances] = await contract.connect(user).shareHoldersWithBalance(assetRef);
+      for (let i = 0; i < holders.length; i++) {
+        assetShareHolders.push({ id: holders[i], name: '', shares: balances[i] });
+      }
+    }
+
+    return assetShareHolders;
   };
 
   const getAddress = async () => {
@@ -142,9 +232,12 @@ export const useIam: () => useIamReturnType = () => {
     isConnected: useCallback(() => !!iamContext.iam.current && iamContext.iam.current.isConnected(), [iamContext.iam]),
     login,
     logout,
-    createClaim,
     getAddress,
-    getAllTokens,
     getUserData,
+    mintAssetShares,
+    divideAssetShares,
+    transferAssetShares,
+    getMintedAssetShares,
+    getOwnedAssetShares,
   };
 };

@@ -1,6 +1,7 @@
 export type User = {
   role: UserRole | null;
   name?: string;
+  email?: string;
   avatar: string;
   address: string;
 };

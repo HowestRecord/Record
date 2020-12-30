@@ -15,4 +15,10 @@ export const useStyles = makeStyles(theme => ({
     ...theme.typography.h4,
     textAlign: 'center',
   },
+  input: {
+    marginBottom: theme.spacing(2),
+  },
+  button: {
+    width: theme.spacing(37.5),
+  },
 }));
