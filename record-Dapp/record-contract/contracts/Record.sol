@@ -238,7 +238,6 @@ contract Record is ERC1155  {
   function metadataUri(string memory _assetRef)
       public 
       view 
-      isCreatorOrApproved(assetShareTokens[_assetRef].creator) 
       returns (string memory) 
   {
         return assetShareTokens[_assetRef].metadataUri;
