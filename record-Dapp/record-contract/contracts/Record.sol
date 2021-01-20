@@ -1,4 +1,12 @@
 // SPDX-License-Identifier: MIT
+
+/**
+ Record contract is a ERC1115 contract that can be used to manage shares of an asset belonging to a communty.
+ Shares of the asset can be
+    - minted
+    - divided
+    - transfered
+*/
 pragma solidity >=0.4.22 <0.8.0;
 pragma experimental ABIEncoderV2;
 
@@ -32,6 +40,9 @@ contract Record is ERC1155  {
     _;
   }
 
+  /**
+    Mint 1000 asset shares for a given asset reference.
+  */
   function mintAssetShares(
     string memory _assetRef, 
     string memory _uri) 
@@ -53,6 +64,9 @@ contract Record is ERC1155  {
 
   }
 
+ /**
+    Divide the minted asset shares to the provided list of share holders with provided amount.
+ */
   function divideAssetShares(
       address creator,
       address[] memory _shareHolders,
@@ -75,30 +89,39 @@ contract Record is ERC1155  {
 
   }
 
+  /**
+    Transfer tokens from holder to buyer for a given asset reference.
+  */
   function transfer(
-      address _from, 
-      address _to, 
+      address _holder, 
+      address _buyer, 
       string memory _assetRef, 
       uint256 _amount, 
       bytes memory _data) 
       public 
   {
     uint256 id = assetShareTokens[_assetRef].id;
-    super.safeTransferFrom(_from, _to, id, _amount, _data);
+    super.safeTransferFrom(_holder, _buyer, id, _amount, _data);
   }
 
+  /**
+      Transfer all tokens for provided asset references and amounts from holder adress to buyer address.
+   */
   function transferBatch(
-      address _from,
-      address _to, 
+      address _holder,
+      address _buyer, 
       string[] memory _assetRefs,
       uint256[] memory _amounts,
       bytes memory _data) 
       public 
   {
     uint256[] memory ids = _idsByAssetRefs(_assetRefs);
-    super.safeBatchTransferFrom(_from, _to, ids, _amounts, _data);
+    super.safeBatchTransferFrom(_holder, _buyer, ids, _amounts, _data);
   }
 
+  /**
+    Returns the token balance for the provided owner address and asset reference.
+  */
   function balance(
       address _owner, 
       string memory _asserRef) 
@@ -109,6 +132,9 @@ contract Record is ERC1155  {
     return super.balanceOf(_owner, assetShareTokens[_asserRef].id);
   }
 
+  /**
+    Returns list of toke  balances for provided ownders and asset references.
+  */
   function balanceBatch(
     address[] memory _owners, 
     string[] memory _assetRefs) 
@@ -119,6 +145,9 @@ contract Record is ERC1155  {
     return super.balanceOfBatch(_owners, _idsByAssetRefs(_assetRefs));
   }
 
+  /**
+    Returns a list of all asset references minted by the provided creator address.
+  */
   function mintedAssetSharesBy(
     address creator)
     public
@@ -146,7 +175,10 @@ contract Record is ERC1155  {
      
   }
 
-   function ownedAssetSharesWithBalances(
+  /**
+    Returns a list of all asset references and shares owned by the provided owner address.
+  */
+  function ownedAssetSharesWithBalances(
     address owner)
     public
     view
@@ -176,6 +208,9 @@ contract Record is ERC1155  {
      
   }
 
+  /**
+    Returns a list with asset references for all divided assets.
+  */
   function allDividedAssets()
     public 
     view 
@@ -199,6 +234,9 @@ contract Record is ERC1155  {
     }
   }
 
+  /**
+    Returns all holders and balance for a given asset reference.
+  */
   function shareHoldersWithBalance(
     string memory _assetRef) 
     public view 
@@ -235,6 +273,9 @@ contract Record is ERC1155  {
 
   }
 
+  /**
+    Returns de uri for a given asset reference.
+  */
   function metadataUri(string memory _assetRef)
       public 
       view 
@@ -243,6 +284,9 @@ contract Record is ERC1155  {
         return assetShareTokens[_assetRef].metadataUri;
   }
 
+  /**
+    Returns a list with all asset references available
+  */
   function allAssets()
   public
   view
@@ -251,6 +295,9 @@ contract Record is ERC1155  {
     return assetRefs;
   }
 
+  /**
+   _beforeTokenTransfer hook from ERC1155 is used to update the holders in the AssetShareToken struct on any transfer.
+  */
   function _beforeTokenTransfer(
           address operator,
           address from,
@@ -271,6 +318,9 @@ contract Record is ERC1155  {
     }
   }
 
+  /**
+    Returns the asset references for the provided internal token ids.
+  */
   function _idsByAssetRefs(
     string[] memory _assetRefs) 
     internal 
@@ -284,6 +334,9 @@ contract Record is ERC1155  {
     }
   }
 
+  /**
+    Are the shares for the provided asset reference allready been minted.
+  */
   function _isAssetSharesExists(
     string memory _assetRef) 
     internal 
@@ -293,6 +346,9 @@ contract Record is ERC1155  {
     return assetShareTokens[_assetRef].id > 0;
   }
 
+  /**
+    Are the shares for the provided asset reference allready been divided.
+  */
   function _isAssetSharesDivided(
     string memory _assetRef) 
     internal 
@@ -302,6 +358,9 @@ contract Record is ERC1155  {
     return assetShareTokens[_assetRef].status == AssetShareTokenStatus.DIVIDED;
   }
 
+  /**
+    Are all 1000 shares divided.
+  */
   function _isAllSharesDivided(
     uint256[] memory _amounts) 
     internal 
