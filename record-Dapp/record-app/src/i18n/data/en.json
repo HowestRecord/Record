@@ -16,7 +16,7 @@
   "dashboard.divide_shares": "Divide asset shares",
   "dashboard.minted.error": "Asset allready minted",
   "dashboard.minted.successfully": "Asset shares successfully minted",
-  "ownerdashboard.assetuuid": "Referentie asset",
+  "ownerdashboard.assetuuid": "Reference asset",
   "ownerdashboard.uri": "Link document",
   "ownerdashboard.mint": "Mint",
   "home.login": "WalletConnect Login",

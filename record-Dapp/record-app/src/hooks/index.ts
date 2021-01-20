@@ -1,6 +1,6 @@
 export { useLocale } from './useLocale/useLocale';
 export { useUser } from './useUser/useUser';
-export { useAssets } from './useAssets/useAssets';
+//export { useAssets } from './useAssets/useAssets';
 export { useThemeOptions } from './useThemeOptions/useThemeOptions';
 //export { useDevMode } from './useDevMode/useDevMode';
 //export { useScanner } from './useScanner/useScanner';

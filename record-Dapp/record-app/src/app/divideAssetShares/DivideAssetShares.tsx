@@ -15,9 +15,9 @@ import { Form } from '../../form/form/Form';
 import { GenericField } from '../../form/fields';
 import { Holder } from '../../hooks/useAssetShares/useAssetShares.types';
 import { useIam } from '../../api/hooks/useIam/useIam';
-import { InfoBlock } from '../../ui/infoBlock/InfoBlock';
 import { GlobeIcon, SuccessIcon } from '../../ui/icons';
 import { ethAddress } from '../../form/validators/ethAddress/ethAddress';
+import { ShareBlock } from '../../ui/shareBlock/ShareBlock';
 
 import { useStyles } from './DivideAssetShares.styles';
 import { DivideAssetSharesTypesForm } from './DivideAssetShares.types';
@@ -207,7 +207,8 @@ export const DivideAssetShares = () => {
           holders.map(({ id, shares }) => (
             <Grid key={id} container direction="column" justify="space-between" onClick={() => handleDeleteHolder(id)}>
               <Grid item xs={12} className={classes.container}>
-                <InfoBlock
+                <ShareBlock
+                  shares={shares}
                   items={[
                     {
                       text: truncateString({ maxLength: 20, string: id }),

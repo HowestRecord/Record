@@ -5,12 +5,11 @@ import { Home } from 'app/home/home/Home';
 import { useUser } from 'hooks/useUser/useUser';
 import { AppRoute } from 'routing/AppRoute.enum';
 import { useIam } from 'api/hooks/useIam/useIam';
-import { useAssets } from 'hooks/useAssets/useAssets';
 
 export const HomeContainer = () => {
   const { login, logout, getUserData } = useIam();
   const { push } = useHistory();
-  const { setAssets } = useAssets();
+
   const { clearUserInfo, setUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessageId, setErrorMessageId] = useState<undefined | string>(undefined);
@@ -18,7 +17,6 @@ export const HomeContainer = () => {
 
   useEffect(() => {
     async function init() {
-      setAssets(null);
       clearUserInfo();
       await logout();
     }

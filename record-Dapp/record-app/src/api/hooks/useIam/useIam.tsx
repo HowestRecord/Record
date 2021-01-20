@@ -2,7 +2,7 @@ import { useCallback, useContext } from 'react';
 import { CacheServerClient, ENSNamespaceTypes, IAM, IRoleDefinition } from 'iam-client-lib';
 import ipfsClient from 'ipfs-http-client';
 
-import { IamContext } from 'api/context/iam/iamContext/IamContext';
+import { IamContext } from 'api/hooks/context/iam/iamContext/IamContext';
 import { UserRole } from 'context/user/userContext/UserContext.types';
 import { assets } from '../../../mocks/assets';
 import { AssetShare, AssetShareStatuses, Holder } from '../../../hooks/useAssetShares/useAssetShares.types';
@@ -16,6 +16,10 @@ export const useIam: () => useIamReturnType = () => {
     throw new Error('IamContext is unavailable, make sure you are using IamContextController');
   }
 
+  /**
+   * Save AssetShare to IPFS.
+   * @param AssetShare
+   */
   const saveToIpfs = async (token: Partial<AssetShare>) => {
     const host = process.env.REACT_APP_IPFS_API_HOST;
     const port = parseInt('' + process.env.REACT_APP_IPFS_API_PORT, 10);
@@ -37,6 +41,10 @@ export const useIam: () => useIamReturnType = () => {
     return `${process.env.REACT_APP_IPFS_URL}${cid.toString()}`;
   };
 
+  /**
+   * Login using EnergyWeb IAM library
+   * @param privateKey
+   */
   const login = async (privateKey?: string) => {
     const cacheClient = new CacheServerClient({
       url: process.env.REACT_APP_CACHE_SERVER as string,
@@ -67,6 +75,9 @@ export const useIam: () => useIamReturnType = () => {
     }
   };
 
+  /**
+   * logout
+   */
   const logout = async () => {
     const { iam, setIam } = iamContext;
 
@@ -78,6 +89,12 @@ export const useIam: () => useIamReturnType = () => {
     localStorage.removeItem('walletconnect');
   };
 
+  /**
+   * Mint 1000 shares for asset with asserRef and uploaded document.
+   *
+   * @param assetRef
+   * @param mintingDocument
+   */
   const mintAssetShares = async (assetRef: string, mintingDocument?: string) => {
     const { contract, iam } = iamContext;
     const user = iam.current?.getSigner();
@@ -103,6 +120,13 @@ export const useIam: () => useIamReturnType = () => {
     return false;
   };
 
+  /**
+   * Divide shares to shareHolders for asset with referende assetRef.
+   *
+   * @param shareHolders
+   * @param assetRef
+   * @param shares
+   */
   const divideAssetShares = async (shareHolders: string[], assetRef: string, shares: number[]) => {
     const { contract, iam } = iamContext;
     const user = iam.current?.getSigner();
@@ -116,6 +140,13 @@ export const useIam: () => useIamReturnType = () => {
     return false;
   };
 
+  /**
+   * Transferf shares for asset with reference assetRef from logged in account to Holder holderTo.
+   *
+   * @param assetRef
+   * @param holderTo
+   * @param shares
+   */
   const transferAssetShares = async (assetRef: string, holderTo: string, shares: number) => {
     const { contract, iam } = iamContext;
     const user = iam.current?.getSigner();
@@ -127,6 +158,9 @@ export const useIam: () => useIamReturnType = () => {
     return false;
   };
 
+  /**
+   * Get minted asset shares for loggin in account.
+   */
   const mintedAssetSharesBy = async () => {
     const { contract, iam } = iamContext;
 
@@ -139,6 +173,9 @@ export const useIam: () => useIamReturnType = () => {
     return [];
   };
 
+  /**
+   * Get owned asset shares for logged in account.
+   */
   const ownedAssetSharesWithBalances = async () => {
     const { contract, iam } = iamContext;
 
@@ -152,6 +189,9 @@ export const useIam: () => useIamReturnType = () => {
     return [];
   };
 
+  /**
+   * Get minted assert shares for logged in account.
+   */
   const getMintedAssetShares = async () => {
     const mintedAssetUids = await mintedAssetSharesBy();
     const address = await getAddress();
@@ -177,6 +217,10 @@ export const useIam: () => useIamReturnType = () => {
     return assetShares;
   };
 
+  /**
+   * Get uri for asset with reference assetRef.
+   * @param assetRef
+   */
   const getDocument = async (assetRef: string) => {
     const { contract, iam } = iamContext;
 
@@ -194,6 +238,9 @@ export const useIam: () => useIamReturnType = () => {
     }
   };
 
+  /**
+   * Get owned asset shares for logged in account.
+   */
   const getOwnedAssetShares = async () => {
     const assetShares: AssetShare[] = [];
     const address = await getAddress();
@@ -223,6 +270,11 @@ export const useIam: () => useIamReturnType = () => {
     return assetShares;
   };
 
+  /**
+   * Get holders of shares for asset with ref assetRef.
+   *
+   * @param assetRef
+   */
   const getHolders = async (assetRef: string) => {
     const { contract, iam } = iamContext;
 
@@ -238,6 +290,9 @@ export const useIam: () => useIamReturnType = () => {
     return assetShareHolders;
   };
 
+  /**
+   * Get address for logged in account.
+   */
   const getAddress = async () => {
     const { iam } = iamContext;
 
@@ -249,6 +304,9 @@ export const useIam: () => useIamReturnType = () => {
     return '';
   };
 
+  /**
+   * Get user data for logged in account.
+   */
   const getUserData = async () => {
     const { iam } = iamContext;
 
