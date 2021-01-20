@@ -7,6 +7,7 @@ import { AssetShare } from '../../hooks/useAssetShares/useAssetShares.types';
 import { CameraIcon, GlobeIcon, SuccessIcon } from 'ui/icons';
 import { useLocale } from 'hooks';
 import { ZoomableImage } from '../zoomableImage/ZoomableImage';
+import { ShareBlock } from '../shareBlock/ShareBlock';
 
 import { useStyles } from './AssetShareDetails.styles';
 export const AssetShareDetails = ({ asset, holders, mintingDocument }: AssetShare) => {
@@ -50,7 +51,8 @@ export const AssetShareDetails = ({ asset, holders, mintingDocument }: AssetShar
         holders.map(({ id, shares }) => (
           <Grid key={id} container direction="column" justify="space-between">
             <Grid item xs={12} className={container}>
-              <InfoBlock
+              <ShareBlock
+                shares={shares}
                 items={[
                   {
                     text: truncateString({ maxLength: 20, string: id }),
