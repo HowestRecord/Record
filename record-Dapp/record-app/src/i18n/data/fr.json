@@ -44,6 +44,7 @@
   "assetshare_transfer.page_title":"Transférer parts d'actifs",
   "assetshare_transfer.transfer": "Transférer",
   "assetshare_transfer.transfering": "Transférer parts d'actifs ...",
+  "validation.transfer.shares.max": "Nombre d'actions disponibles atteint",
   "assetshare_shares.transfer.successfully": "Parts d'actifs transférées avec succès",
   "assetshare_shares.transfer.error": "Échec du transfert des parts d’actif",
   "assetshare_holder": "Titulaire",

@@ -124,7 +124,7 @@ export const TransferAssetShares = () => {
                 type={'number'}
                 validation={{
                   min: { value: 1, message: 'validation.shares.min' },
-                  max: { value: 1000, message: 'validation.shares.max' },
+                  max: { value: assetShare.currentHolder.shares, message: 'validation.transfer.shares.max' },
                 }}
               />
             </Grid>

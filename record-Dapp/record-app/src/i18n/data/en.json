@@ -45,6 +45,7 @@
   "assetshare_transfer.transfer": "Transfer",
   "assetshare_transfer.transfering": "Transfering asset shares ...",
   "assetshare_shares.transfer.successfully": "Asset shares successfully transfered",
+  "validation.transfer.shares.max": "Amount of shares available exceeded",
   "assetshare_shares.transfer.error": "Transfer asset shares failed",
   "assetshare_holder": "Holder",
   "assetshare_holder.from": "From holder",
