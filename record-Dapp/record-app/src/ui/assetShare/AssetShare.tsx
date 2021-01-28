@@ -36,13 +36,11 @@ export const AssetShare = ({
     bottomIcon,
     subtitleClass,
     title,
-    statusIcon,
     treeDotIcon,
   } = useStyles({
     status,
   });
-  const { getIconElement, getLabel } = useAssetShareStatus();
-  const StatusIcon = getIconElement(status) || <img alt="" />;
+  const { getLabel } = useAssetShareStatus();
   const threeDotsColor = mapThreeDotsColor[status] || 'secondary';
   const { formatMessage } = useLocale();
 
@@ -84,7 +82,6 @@ export const AssetShare = ({
         </Grid>
         <Grid container item xs={4} alignItems="center" direction="column" className={statusContainer}>
           <AssetIcon className={assetIcon} />
-          <StatusIcon className={statusIcon} />
           <ThreeDotsIcon className={treeDotIcon} color={threeDotsColor} />
         </Grid>
       </Grid>
